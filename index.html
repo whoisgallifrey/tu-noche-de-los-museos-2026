@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Noche de los Museos 2026 · Buscador</title>
+<style>
+  :root {
+    --bg: #0f0f14;
+    --surface: #1a1a24;
+    --surface2: #22222f;
+    --border: #2e2e3e;
+    --gold: #c9a84c;
+    --gold-dim: #8a6e30;
+    --text: #e8e4d8;
+    --text-dim: #8b8880;
+    --text-muted: #555050;
+    --accent: #7b6cff;
+    --accent2: #ff6c7b;
+    --tag-bg: #1e1e2e;
+    --tag-active: #c9a84c;
+    --tag-active-text: #0f0f14;
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0a0a10 0%, #161620 50%, #0d0d16 100%);
+    border-bottom: 1px solid var(--gold-dim);
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-family: sans-serif;
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: normal;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  header h1 span { color: var(--gold); }
+  header p {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-family: sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .header-date {
+    display: inline-block;
+    margin-top: 14px;
+    background: rgba(201,168,76,0.12);
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-size: 12px;
+    font-family: sans-serif;
+    letter-spacing: 1px;
+    padding: 5px 14px;
+    border-radius: 20px;
+  }
+
+  /* ── FILTERS ── */
+  #filters {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  #search {
+    flex: 1 1 220px;
+    min-width: 180px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    font-family: sans-serif;
+    padding: 10px 14px 10px 36px;
+    outline: none;
+    transition: border-color .2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 11px center;
+  }
+  #search:focus { border-color: var(--gold-dim); }
+  #search::placeholder { color: var(--text-muted); }
+
+  #barrio-select {
+    flex: 0 1 190px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    font-family: sans-serif;
+    padding: 10px 12px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color .2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 10px) center;
+    padding-right: 30px;
+  }
+  #barrio-select:focus { border-color: var(--gold-dim); }
+  #barrio-select option { background: #1a1a24; }
+
+  .results-count {
+    font-size: 12px;
+    font-family: sans-serif;
+    color: var(--text-muted);
+    white-space: nowrap;
+    margin-left: auto;
+  }
+  .results-count strong { color: var(--gold); }
+
+  /* ── INTEREST PILLS ── */
+  #tags-bar {
+    max-width: 1100px;
+    margin: 10px auto 0;
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .tags-label {
+    font-size: 11px;
+    font-family: sans-serif;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .tag-pill {
+    font-family: sans-serif;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--tag-bg);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .tag-pill:hover { border-color: var(--gold-dim); color: var(--text); }
+  .tag-pill.active {
+    background: var(--tag-active);
+    color: var(--tag-active-text);
+    border-color: var(--tag-active);
+    font-weight: bold;
+  }
+  .tag-pill.clear-all {
+    border-color: transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+  .tag-pill.clear-all:hover { color: var(--text); }
+
+  /* ── RESULTS AREA ── */
+  #results-area {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: border-color .2s, transform .15s;
+    cursor: default;
+  }
+  .card:hover {
+    border-color: var(--gold-dim);
+    transform: translateY(-1px);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .card-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .oddity-badge {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .skull {
+    font-size: 12px;
+    opacity: 0.3;
+    transition: opacity .1s;
+  }
+  .skull.lit { opacity: 1; }
+
+  .card-location {
+    font-size: 12px;
+    font-family: sans-serif;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card-location::before {
+    content: '📍';
+    font-size: 11px;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-oddity-text {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--gold);
+    line-height: 1.4;
+    border-left: 2px solid var(--gold-dim);
+    padding-left: 8px;
+    display: none;
+  }
+
+  .card-activities {
+    font-size: 12px;
+    font-family: sans-serif;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .card-activities strong {
+    color: var(--text-dim);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: auto;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+  }
+  .card-tag {
+    font-family: sans-serif;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .card-tag.match {
+    background: rgba(201,168,76,0.15);
+    color: var(--gold);
+    border-color: var(--gold-dim);
+  }
+  .card.featured { border-color: rgba(201,168,76,0.3); }
+  .card.featured .card-name::after {
+    content: ' ★';
+    color: var(--gold);
+    font-size: 12px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-family: sans-serif;
+  }
+  .empty-state .emoji { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── ODDITY TOGGLE ── */
+  .oddity-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .oddity-toggle input { accent-color: var(--gold); cursor: pointer; }
+  .oddity-toggle:hover { color: var(--text); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .filter-row { gap: 8px; }
+    #search { min-width: 100%; flex-basis: 100%; }
+    #barrio-select { flex: 1 1 140px; }
+    .results-count { margin-left: 0; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-eyebrow">Ciudad de Buenos Aires</div>
+  <h1>La <span>Noche de los Museos</span> 2026</h1>
+  <p>Buscá por intereses y barrio. Descubrí lo extraño, lo bello y lo inesperado.</p>
+  <div class="header-date">📅 Viernes 14 de noviembre · 19 h – 04 h</div>
+</header>
+
+<div id="filters">
+  <div class="filter-row">
+    <input id="search" type="text" placeholder="Buscar espacio, actividad, descripción…" autocomplete="off">
+    <select id="barrio-select">
+      <option value="">Todos los barrios</option>
+    </select>
+    <label class="oddity-toggle" title="Solo mostrar lugares curiosos / insólitos">
+      <input type="checkbox" id="oddity-only"> 💀 Solo rarezas
+    </label>
+    <div class="results-count"><strong id="count">0</strong> espacios</div>
+  </div>
+  <div id="tags-bar">
+    <span class="tags-label">Intereses:</span>
+    <!-- pills injected by JS -->
+  </div>
+</div>
+
+<div id="results-area">
+  <div class="card-grid" id="card-grid"></div>
+  <div class="empty-state" id="empty-state" style="display:none">
+    <div class="emoji">🔭</div>
+    <p>No se encontraron espacios con estos filtros.<br>Probá combinando menos criterios.</p>
+  </div>
+</div>
+
+<script src="noche-museos-data.js"></script>
+<script src="noche-museos-extra.js"></script>
+<script>
+// ── INTEREST CATEGORIES (labels + emoji)
+const CATS = {
+  arte:        { label: 'Arte',           emoji: '🎨' },
+  historia:    { label: 'Historia',       emoji: '🏛️' },
+  ciencia:     { label: 'Ciencia',        emoji: '🔬' },
+  musica:      { label: 'Música',         emoji: '🎵' },
+  tango:       { label: 'Tango',          emoji: '🕺' },
+  cine:        { label: 'Cine',           emoji: '🎬' },
+  comics:      { label: 'Historieta',     emoji: '💬' },
+  esoterico:   { label: 'Esotérico',      emoji: '🔮' },
+  curiosidades:{ label: 'Curiosidades',   emoji: '🦴' },
+  arquitectura:{ label: 'Arquitectura',   emoji: '🏗️' },
+  infancias:   { label: 'Para chicos',    emoji: '🧸' },
+  deporte:     { label: 'Deporte',        emoji: '⚽' },
+  naturaleza:  { label: 'Naturaleza',     emoji: '🌿' },
+  diversidad:  { label: 'Diversidad',     emoji: '🏳️‍🌈' },
+  gastronomia: { label: 'Gastronomía',    emoji: '☕' },
+  teatro:      { label: 'Teatro',         emoji: '🎭' },
+  libros:      { label: 'Libros',         emoji: '📚' },
+  fotografia:  { label: 'Fotografía',     emoji: '📷' },
+  naval:       { label: 'Naval/Militar',  emoji: '⚓' },
+};
+
+// ── STATE
+let activeTags = new Set();
+let searchVal = '';
+let barrioVal = '';
+let oddityOnly = false;
+
+// ── BUILD BARRIO DROPDOWN
+(function populateBarrios(){
+  const sel = document.getElementById('barrio-select');
+  const barrios = [...new Set(MUSEOS_DATA.map(m => m.barrio).filter(Boolean))].sort();
+  barrios.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = b;
+    sel.appendChild(o);
+  });
+})();
+
+// ── BUILD TAG PILLS
+(function buildPills(){
+  const bar = document.getElementById('tags-bar');
+  const clear = document.createElement('span');
+  clear.className = 'tag-pill clear-all';
+  clear.textContent = '✕ Limpiar';
+  clear.addEventListener('click', () => { activeTags.clear(); render(); syncPills(); });
+  bar.appendChild(clear);
+
+  Object.entries(CATS).forEach(([key, {label, emoji}]) => {
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.dataset.key = key;
+    pill.textContent = `${emoji} ${label}`;
+    pill.addEventListener('click', () => {
+      activeTags.has(key) ? activeTags.delete(key) : activeTags.add(key);
+      render(); syncPills();
+    });
+    bar.appendChild(pill);
+  });
+})();
+
+function syncPills(){
+  document.querySelectorAll('.tag-pill[data-key]').forEach(p => {
+    p.classList.toggle('active', activeTags.has(p.dataset.key));
+  });
+}
+
+// ── EVENT LISTENERS
+document.getElementById('search').addEventListener('input', e => { searchVal = e.target.value.toLowerCase(); render(); });
+document.getElementById('barrio-select').addEventListener('change', e => { barrioVal = e.target.value; render(); });
+document.getElementById('oddity-only').addEventListener('change', e => { oddityOnly = e.target.checked; render(); });
+
+// ── FILTER LOGIC
+function filterData(){
+  return MUSEOS_DATA.filter(m => {
+    // text search
+    if(searchVal){
+      const haystack = [m.name, m.description, m.address, m.barrio, ...(m.activities||[])].join(' ').toLowerCase();
+      if(!haystack.includes(searchVal)) return false;
+    }
+    // barrio
+    if(barrioVal && m.barrio !== barrioVal) return false;
+    // oddity
+    if(oddityOnly && (!m.oddity_level || m.oddity_level < 3)) return false;
+    // tags
+    if(activeTags.size > 0){
+      const mTags = m.tags || [];
+      if(![...activeTags].some(t => mTags.includes(t))) return false;
+    }
+    return true;
+  });
+}
+
+// ── RENDER CARDS
+function render(){
+  const data = filterData();
+  const grid = document.getElementById('card-grid');
+  const empty = document.getElementById('empty-state');
+  document.getElementById('count').textContent = data.length;
+
+  grid.innerHTML = '';
+
+  if(data.length === 0){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  data.forEach(m => {
+    const card = document.createElement('div');
+    card.className = 'card' + (m.featured ? ' featured' : '');
+
+    // skull rating
+    const skulls = Array.from({length:5},(_,i)=>`<span class="skull${i < (m.oddity_level||0) ? ' lit' : ''}">💀</span>`).join('');
+
+    // activities preview
+    const acts = (m.activities||[]).slice(0,3).join(' · ');
+
+    // tag pills
+    const tagHtml = (m.tags||[]).map(t => {
+      const isCat = CATS[t];
+      const isActive = activeTags.has(t);
+      const label = isCat ? `${isCat.emoji} ${isCat.label}` : t;
+      return `<span class="card-tag${isActive?' match':''}">${label}</span>`;
+    }).join('');
+
+    // oddity text
+    const oddityHtml = m.oddity
+      ? `<div class="card-oddity-text">${m.oddity}</div>`
+      : '';
+
+    const hoursHtml = m.hours
+      ? `<div class="card-activities"><strong>Horario:</strong> ${m.hours}</div>`
+      : '';
+
+    const actsHtml = acts
+      ? `<div class="card-activities"><strong>Actividades:</strong> ${acts}</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-name">${m.name}</div>
+        ${m.oddity_level ? `<div class="oddity-badge">${skulls}</div>` : ''}
+      </div>
+      <div class="card-location">${m.address}${m.barrio ? ' · <strong>'+m.barrio+'</strong>' : ''}</div>
+      <div class="card-desc">${m.description || ''}</div>
+      ${oddityHtml}
+      ${hoursHtml}
+      ${actsHtml}
+      ${tagHtml ? `<div class="card-tags">${tagHtml}</div>` : ''}
+    `;
+
+    // show oddity text when oddity_level >= 3 or oddityOnly
+    if(m.oddity && (m.oddity_level >= 3 || oddityOnly)){
+      card.querySelector('.card-oddity-text').style.display = 'block';
+    }
+
+    grid.appendChild(card);
+  });
+}
+
+// ── INITIAL RENDER
+render();
+</script>
+</body>
+</html>
